@@ -1,17 +1,602 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <title>Crown Makers</title>
-  </head>
-  <body>
-    <h1>안녕하세요! Crown Makers입니다.</h1>
-  </body>
-</html>
-```
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrownMakers Collective - Strategic Clinician Alliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@700&display=swap');
+        
+        :root {
+            --brand-dark: #050a14;
+            --brand-navy-deep: #0a0e17;
+            --brand-cyan: #00d1ff;
+            --brand-indigo: #6366f1;
+            --brand-cyan-dim: rgba(0, 209, 255, 0.15);
+        }
 
-저장(Ctrl+S) 후 터미널에서:
-```
-git add .
-git commit -m "update index.html"
-git push
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050a14;
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Number Input Styling: Remove Spinners & UI elements */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .brand-logo {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            text-transform: lowercase;
+        }
+
+        .cyan-text { color: var(--brand-cyan); }
+        .brand-gradient { background: linear-gradient(135deg, var(--brand-cyan), var(--brand-indigo)); }
+
+        .nav-container {
+            background: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-pill-group {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-pill {
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-pill.active {
+            background: var(--brand-cyan);
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0, 209, 255, 0.4);
+        }
+
+        @media (max-width: 640px) {
+            .nav-pill { padding: 8px 0; font-size: 10px; flex: 1; text-align: center; }
+            .nav-pill-group { width: 100%; margin-top: 16px; }
+        }
+
+        .tier-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .tier-card:hover {
+            border-color: rgba(0, 209, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        /* Status Board Responsive Fix */
+        .status-grid-header {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1.5fr 1.2fr;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.03);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .status-row {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1.5fr 1.2fr;
+            padding: 24px;
+            align-items: start;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.2s;
+        }
+
+        .status-row:hover { background: rgba(255,255,255,0.02); }
+
+        .clinic-tag {
+            background: rgba(0, 209, 255, 0.08);
+            border: 1px solid rgba(0, 209, 255, 0.2);
+            color: var(--brand-cyan);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 6px;
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .status-grid-header { display: none; }
+            .status-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                padding: 24px 20px;
+            }
+            .status-row > div:first-child { grid-column: span 2; }
+            .status-row > div:last-child { text-align: right; }
+            .status-metrics {
+                display: flex;
+                justify-content: space-between;
+                grid-column: span 2;
+                background: rgba(255,255,255,0.02);
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+        }
+
+        .dropdown-content {
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        .dropdown-content.show { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: 2px solid var(--brand-cyan);
+            border-radius: 50%;
+            width: 18px; height: 18px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .glow-button {
+            box-shadow: 0 0 20px rgba(0, 209, 255, 0.2);
+        }
+        .glow-button:hover { box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-container">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-4 sm:h-24">
+                <!-- Header Branding: Mobile Left-Aligned -->
+                <div class="flex flex-col items-start w-full sm:w-auto mb-4 sm:mb-0">
+                    <span class="text-[9px] tracking-[0.25em] text-white/40 font-bold uppercase mb-1">Built by a Dentist, for Dentists</span>
+                    <div class="flex items-baseline space-x-2">
+                        <span class="brand-logo text-2xl text-white">crownmakers</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/25">Collective</span>
+                    </div>
+                </div>
+
+                <div class="nav-pill-group">
+                    <button onclick="showSection('flyer')" id="btn-flyer" class="nav-pill active">Flyer</button>
+                    <button onclick="showSection('register')" id="btn-register" class="nav-pill">Registration</button>
+                    <button onclick="showSection('leaderboard')" id="btn-leaderboard" class="nav-pill">Status</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-48 sm:pt-44 pb-20 px-6 max-w-5xl mx-auto">
+        
+        <!-- SECTION: FLYER -->
+        <section id="section-flyer" class="space-y-16">
+            <div class="text-center space-y-6 py-8">
+                <div class="inline-block h-[1px] w-12 brand-gradient mb-4"></div>
+                <h1 class="text-5xl md:text-8xl font-bold leading-tight tracking-tight">
+                    Team up. Save more.<br>
+                    <span class="cyan-text italic">Grow together.</span>
+                </h1>
+                <p class="text-slate-400 text-base md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    Aggregate your practice volume with top clinicians. 
+                    Unlock institutional pricing through collective synergy.
+                </p>
+                <div class="pt-8">
+                    <button onclick="showSection('register')" class="brand-gradient text-white px-10 py-4 rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all glow-button shadow-2xl">
+                        Initialize Alliance
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="tier-card p-8 sm:p-10 rounded-3xl relative">
+                    <div class="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-6">Tier 01</div>
+                    <h3 class="text-2xl font-bold mb-2">Bronze Alliance</h3>
+                    <div class="text-4xl font-bold cyan-text mb-8">5% <span class="text-xs text-white/40 uppercase font-normal text-slate-400">OFF</span></div>
+                    <div class="space-y-3 text-sm text-slate-400 border-t border-white/5 pt-6">
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-users w-6 cyan-text text-xs"></i> 3+ Clinicians</div>
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-chart-line w-6 cyan-text text-xs"></i> $3,000+ Volume</div>
+                    </div>
+                </div>
+                <div class="tier-card p-8 sm:p-10 rounded-3xl relative md:scale-105 border-white/10 shadow-2xl">
+                    <div class="absolute top-0 right-0 px-4 py-1 brand-gradient text-white text-[9px] font-bold uppercase tracking-widest">Recommended</div>
+                    <div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-6">Tier 02</div>
+                    <h3 class="text-2xl font-bold mb-2">Silver Alliance</h3>
+                    <div class="text-4xl font-bold cyan-text mb-8">7% <span class="text-xs text-white/40 uppercase font-normal text-slate-400">OFF</span></div>
+                    <div class="space-y-3 text-sm text-slate-400 border-t border-white/5 pt-6">
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-users w-6 cyan-text text-xs"></i> 5+ Clinicians</div>
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-chart-line w-6 cyan-text text-xs"></i> $5,000+ Volume</div>
+                    </div>
+                </div>
+                <div class="tier-card p-8 sm:p-10 rounded-3xl relative">
+                    <div class="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-6">Tier 03</div>
+                    <h3 class="text-2xl font-bold mb-2">Gold Alliance</h3>
+                    <div class="text-4xl font-bold cyan-text mb-8">10% <span class="text-xs text-white/40 uppercase font-normal text-slate-400">OFF</span></div>
+                    <div class="space-y-3 text-sm text-slate-400 border-t border-white/5 pt-6">
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-users w-6 cyan-text text-xs"></i> 7+ Clinicians</div>
+                        <div class="flex items-center font-semibold"><i class="fa-solid fa-chart-line w-6 cyan-text text-xs"></i> $7,000+ Volume</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: REGISTRATION -->
+        <section id="section-register" class="hidden max-w-2xl mx-auto space-y-10">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-bold italic italic">Alliance Onboarding</h2>
+                <p class="text-slate-500 text-sm">Join the professional network for May–Nov 2026.</p>
+            </div>
+
+            <div class="tier-card rounded-3xl p-8 md:p-12 space-y-10 shadow-2xl">
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-widest">Step 1: Choose Your Role</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="role" value="captain" class="peer sr-only" checked onclick="toggleRoleFields('captain')">
+                            <div class="p-6 border border-white/10 rounded-2xl peer-checked:border-sky-400 peer-checked:bg-sky-400/10 transition-all text-center">
+                                <span class="block text-2xl mb-2">👑</span>
+                                <span class="block font-bold text-xs uppercase tracking-widest">Captain</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="role" value="member" class="peer sr-only" onclick="toggleRoleFields('member')">
+                            <div class="p-6 border border-white/10 rounded-2xl peer-checked:border-sky-400 peer-checked:bg-sky-400/10 transition-all text-center">
+                                <span class="block text-xl mb-2">🤝</span>
+                                <span class="block font-bold text-xs uppercase tracking-widest">Member</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="role-fields-container" class="space-y-6 pt-6 border-t border-white/5">
+                    <div id="fields-captain" class="space-y-4">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-500">New Alliance Name</label>
+                        <input type="text" id="input-team-name" placeholder="e.g., Downtown Dental Collective" class="w-full px-6 py-4 bg-[#050a14] border border-white/10 rounded-xl focus:outline-none focus:border-sky-400 transition text-sm text-white">
+                    </div>
+                    <div id="fields-member" class="hidden space-y-4">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-500">Select Alliance</label>
+                        <div class="relative">
+                            <div class="relative" onclick="toggleTeamDropdown(event)">
+                                <input type="text" id="team-search" readonly placeholder="Click to browse teams..." class="w-full pl-12 pr-12 py-4 bg-[#050a14] border border-white/10 rounded-xl cursor-pointer text-sm text-white">
+                                <i class="fa-solid fa-users absolute left-5 top-1/2 -translate-y-1/2 text-sky-400 text-sm"></i>
+                                <i class="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 text-xs" id="dropdown-arrow"></i>
+                            </div>
+                            <div id="search-results" class="dropdown-content absolute w-full mt-2 rounded-xl shadow-2xl z-20 overflow-hidden">
+                                <div id="team-list-container" class="max-h-56 overflow-y-auto">
+                                    <div class="p-6 text-center text-xs text-slate-500 italic">Syncing collectives...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 pt-6 border-t border-white/5">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 tracking-widest">Step 3: Professional Data</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Full Name</label>
+                            <input type="text" id="input-name" placeholder="Name" class="w-full px-6 py-4 bg-[#050a14] border border-white/10 rounded-xl focus:outline-none focus:border-sky-400 text-sm text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Clinic Name</label>
+                            <input type="text" id="input-clinic" placeholder="Clinic" class="w-full px-6 py-4 bg-[#050a14] border border-white/10 rounded-xl focus:outline-none focus:border-sky-400 text-sm text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Est. Monthly Vol ($)</label>
+                            <input type="text" id="input-volume" oninput="window.formatVolume(this)" placeholder="e.g. 10,000" class="w-full px-6 py-4 bg-[#050a14] border border-white/10 rounded-xl focus:outline-none focus:border-sky-400 text-sm text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="submit-btn" class="w-full brand-gradient text-white font-bold py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all uppercase text-xs tracking-widest" onclick="handleRegistration()">
+                    Initialize Registration
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION: STATUS -->
+        <section id="section-leaderboard" class="hidden space-y-10">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-bold italic italic">Live Alliance Status</h2>
+                <p class="text-slate-500 text-sm italic">Real-time engagement of professional collectives.</p>
+            </div>
+
+            <div class="tier-card rounded-3xl overflow-hidden shadow-2xl border border-white/5">
+                <div class="status-grid-header">
+                    <div>Alliance & Clinics</div>
+                    <div class="text-center">Clinicians</div>
+                    <div class="text-center">Volume ($)</div>
+                    <div class="text-right">Tier Status</div>
+                </div>
+                <div id="leaderboard-body" class="divide-y divide-white/5">
+                    <!-- Dynamic Data Load -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="modal-success" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-white/10 rounded-3xl max-w-sm w-full p-10 text-center shadow-2xl space-y-6">
+            <div class="w-16 h-16 bg-sky-400/20 text-sky-400 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold italic">Data Secured</h2>
+            <p id="success-msg" class="text-slate-400 text-sm font-light"></p>
+            <button onclick="closeModal()" class="w-full brand-gradient text-white py-4 rounded-xl font-bold text-[10px] uppercase tracking-widest">Return Board</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        /* --- CRITICAL: REPLACE WITH YOUR FIREBASE CONFIG --- */
+        const firebaseConfig = {
+            apiKey: "AIzaSyCz5_Bf_D1Fz_qMTxRWHRaRiENpvQ65RmM",
+            authDomain: "crownmakers-collective-apr2026.firebaseapp.com",
+            projectId: "crownmakers-collective-apr2026",
+            storageBucket: "crownmakers-collective-apr2026.firebasestorage.app",
+            messagingSenderId: "190674782151",
+            appId: "1:190674782151:web:8ad76c9a5c6cad0dbfbbe2"
+        };
+        const appId = 'crown-makers-prod-v1';
+        /* -------------------------------------------------- */
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let user, selectedTeamId = null;
+        let realTeams = [];
+        let realRegs = [];
+
+        // Formatting: 3-digit commas
+        window.formatVolume = (el) => {
+            let val = el.value.replace(/[^0-9]/g, '');
+            if (val) el.value = parseInt(val).toLocaleString();
+            else el.value = '';
+        };
+
+        onAuthStateChanged(auth, (u) => { 
+            if (!u) signInAnonymously(auth);
+            user = u; 
+            if (user) setupListeners(); 
+        });
+
+        function setupListeners() {
+            const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
+            const regsRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+
+            onSnapshot(teamsRef, (snapshot) => {
+                realTeams = [];
+                snapshot.forEach(d => realTeams.push({ id: d.id, ...d.data() }));
+                renderUI();
+            });
+
+            onSnapshot(regsRef, (snapshot) => {
+                realRegs = [];
+                snapshot.forEach(d => realRegs.push({ id: d.id, ...d.data() }));
+                renderUI();
+            });
+        }
+
+        function renderUI() {
+            const allTeams = [...realTeams].sort((a, b) => (b.totalVolume || 0) - (a.totalVolume || 0));
+
+            // Update Registration Dropdown
+            const list = document.getElementById('team-list-container');
+            if (allTeams.length === 0) {
+                list.innerHTML = '<div class="p-8 text-center text-[10px] text-slate-600 font-bold uppercase italic tracking-widest">No active alliances. Create one.</div>';
+            } else {
+                list.innerHTML = allTeams.map(t => `
+                    <div class="p-5 hover:bg-white/5 border-b border-white/5 flex justify-between items-center cursor-pointer transition" onclick="selectTeam('${t.id}', '${t.name}')">
+                        <div>
+                            <div class="text-sm font-bold text-white">${t.name}</div>
+                            <div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Captain: ${t.captainName}</div>
+                        </div>
+                        <span class="text-[9px] bg-sky-400/10 text-sky-400 px-3 py-1 rounded-full font-bold uppercase tracking-widest">
+                            ${t.memberCount} Mems | $${(t.totalVolume || 0).toLocaleString()}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            // Update Status Board (Real-time with clinic lists)
+            const tbody = document.getElementById('leaderboard-body');
+            if (allTeams.length === 0) { 
+                tbody.innerHTML = '<div class="p-20 text-center text-xs text-slate-600 font-bold uppercase tracking-widest italic">No Data Stream Available</div>'; 
+            } else {
+                tbody.innerHTML = allTeams.map(t => {
+                    const teamRegs = realRegs.filter(r => r.teamId === t.id);
+                    const clinics = teamRegs.map(r => `<span class="clinic-tag">${r.clinic}</span>`).join('');
+                    const mCount = t.memberCount || 0;
+                    const vol = t.totalVolume || 0;
+                    
+                    let tier = { name: 'Pending', color: 'text-slate-500 border-white/10' };
+                    if (mCount >= 7 && vol >= 7000) tier = { name: 'Gold 10%', color: 'text-sky-400 border-sky-400/40' };
+                    else if (mCount >= 5 && vol >= 5000) tier = { name: 'Silver 7%', color: 'text-white border-white/30' };
+                    else if (mCount >= 3 && vol >= 3000) tier = { name: 'Bronze 5%', color: 'text-white/60 border-white/10' };
+                    
+                    return `
+                        <div class="status-row">
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="font-bold text-white text-lg italic">${t.name}</div>
+                                    <div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mt-1">Captain: ${t.captainName}</div>
+                                </div>
+                                <div class="pt-2 border-t border-white/5">
+                                    <div class="text-[8px] uppercase text-white/30 font-bold tracking-[0.2em] mb-1">Affiliated Practices</div>
+                                    <div class="flex flex-wrap">${clinics || '<span class="text-[10px] text-slate-700 italic">No clinics registered.</span>'}</div>
+                                </div>
+                            </div>
+                            <div class="text-center sm:block hidden mt-1">
+                                <span class="text-sm font-bold ${mCount < 3 ? 'text-slate-600' : 'text-sky-400'}">${mCount}</span>
+                            </div>
+                            <div class="text-center sm:block hidden mt-1">
+                                <span class="text-sm font-bold ${vol < 3000 ? 'text-slate-600' : 'text-white'}">$${vol.toLocaleString()}</span>
+                            </div>
+                            <div class="status-metrics sm:hidden">
+                                <div class="text-center">
+                                    <span class="text-[8px] block text-slate-500 uppercase mb-1">Mems</span>
+                                    <span class="text-sm font-bold ${mCount < 3 ? 'text-slate-600' : 'text-sky-400'}">${mCount}</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-[8px] block text-slate-500 uppercase mb-1">Volume</span>
+                                    <span class="text-sm font-bold ${vol < 3000 ? 'text-slate-600' : 'text-white'}">$${vol.toLocaleString()}</span>
+                                </div>
+                            </div>
+                            <div class="text-right mt-1">
+                                <span class="border px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${tier.color}">${tier.name}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        window.handleRegistration = async () => {
+            if (!user) return;
+            const btn = document.getElementById('submit-btn');
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const name = document.getElementById('input-name').value;
+            const clinic = document.getElementById('input-clinic').value;
+            const volumeRaw = document.getElementById('input-volume').value;
+            const volume = parseInt(volumeRaw.replace(/,/g, '')) || 0;
+
+            if (!name || !clinic || volume <= 0) { showMsg("Professional Data Required."); return; }
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="loader"></div><span>Syncing...</span></div>';
+
+            try {
+                const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
+                const regRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+
+                if (role === 'captain') {
+                    const tName = document.getElementById('input-team-name').value;
+                    if (!tName) { showMsg("Alliance Name Required."); btn.disabled = false; return; }
+                    
+                    const docRef = await addDoc(teamsRef, {
+                        name: tName, captainName: name, memberCount: 1, totalVolume: volume, createdAt: serverTimestamp()
+                    });
+                    await addDoc(regRef, { teamId: docRef.id, name, clinic, volume, isCaptain: true, timestamp: serverTimestamp() });
+                } else {
+                    if (!selectedTeamId) { showMsg("Alliance Selection Required."); btn.disabled = false; return; }
+                    
+                    const tRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', selectedTeamId);
+                    await updateDoc(tRef, { memberCount: increment(1), totalVolume: increment(volume) });
+                    await addDoc(regRef, { teamId: selectedTeamId, name, clinic, volume, isCaptain: false, timestamp: serverTimestamp() });
+                }
+
+                document.getElementById('modal-success').classList.remove('hidden');
+                document.getElementById('success-msg').innerText = `${name}, your profile has been secured and integrated.`;
+                
+                // Clear Form
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-clinic').value = '';
+                document.getElementById('input-team-name').value = '';
+                document.getElementById('input-volume').value = '';
+                selectedTeamId = null;
+                document.getElementById('team-search').value = '';
+            } catch (err) { 
+                console.error(err); 
+                showMsg("Protocol Error. Check your connection."); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "Initialize Registration"; 
+            }
+        };
+
+        window.selectTeam = (id, name) => {
+            selectedTeamId = id;
+            const searchInput = document.getElementById('team-search');
+            searchInput.value = name;
+            searchInput.classList.add('border-sky-400', 'bg-sky-400/5');
+            document.getElementById('search-results').classList.remove('show');
+        };
+
+        window.showSection = (id) => {
+            ['flyer', 'register', 'leaderboard'].forEach(s => {
+                const btn = document.getElementById(`btn-${s}`);
+                const section = document.getElementById(`section-${s}`);
+                section.classList.toggle('hidden', s !== id);
+                if (s === id) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.toggleRoleFields = (r) => {
+            document.getElementById('fields-captain').classList.toggle('hidden', r !== 'captain');
+            document.getElementById('fields-member').classList.toggle('hidden', r !== 'member');
+        };
+
+        window.toggleTeamDropdown = (e) => {
+            e.stopPropagation();
+            document.getElementById('search-results').classList.toggle('show');
+            const arrow = document.getElementById('dropdown-arrow');
+            arrow.style.transform = document.getElementById('search-results').classList.contains('show') ? 'translateY(-50%) rotate(180deg)' : 'translateY(-50%) rotate(0deg)';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('modal-success').classList.add('hidden');
+            showSection('leaderboard');
+        };
+
+        function showMsg(m) {
+            const b = document.createElement('div');
+            b.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 bg-sky-400 text-black px-6 py-3 rounded-full text-[10px] z-[200] shadow-2xl font-bold uppercase tracking-widest';
+            b.innerText = m;
+            document.body.appendChild(b);
+            setTimeout(() => b.remove(), 3000);
+        }
+
+        window.onclick = () => {
+            const results = document.getElementById('search-results');
+            if (results) results.classList.remove('show');
+            const arrow = document.getElementById('dropdown-arrow');
+            if (arrow) arrow.style.transform = 'translateY(-50%) rotate(0deg)';
+        };
+    </script>
+</body>
+</html>
