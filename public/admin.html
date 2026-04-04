@@ -19,95 +19,110 @@
         .btn { padding: 12px 24px; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; border: none; }
         .btn-primary { background: linear-gradient(135deg, #00d1ff, #6366f1); color: white; }
         .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-        .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-        .btn-danger:hover { background: rgba(239,68,68,0.25); }
         .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; }
+        .pw-input { width: 100%; padding: 16px 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; font-size: 16px; color: white; outline: none; text-align: center; letter-spacing: 0.2em; }
+        .pw-input:focus { border-color: #00d1ff; box-shadow: 0 0 20px rgba(0,209,255,0.1); }
+        .shake { animation: shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
     </style>
 </head>
-<body class="min-h-screen p-6">
+<body class="min-h-screen">
 
-    <div class="max-w-6xl mx-auto space-y-8">
-
-        <!-- Header -->
-        <div class="flex items-center justify-between">
+    <!-- 비밀번호 화면 -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="card p-10 w-full max-w-sm space-y-8 text-center">
             <div>
-                <p class="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-1">CrownMakers Collective</p>
-                <h1 class="text-2xl font-black">Admin Dashboard</h1>
+                <p class="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-2">CrownMakers Collective</p>
+                <h1 class="text-2xl font-black">Admin Access</h1>
+                <p class="text-white/30 text-sm mt-2">비밀번호를 입력하세요</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="exportExcel()" class="btn btn-primary">
-                    엑셀 다운로드
-                </button>
-                <button onclick="loadData()" class="btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);">
-                    새로고침
-                </button>
+            <div class="space-y-4">
+                <input type="password" id="pw-input" class="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()">
+                <p id="pw-error" class="text-red-400 text-sm font-bold hidden">비밀번호가 틀렸습니다</p>
+                <button onclick="checkPassword()" class="btn btn-primary w-full">입장</button>
             </div>
         </div>
+    </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats">
-            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 등록자</p><p class="text-3xl font-black" id="stat-total">-</p></div>
-            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 얼라이언스</p><p class="text-3xl font-black" id="stat-teams">-</p></div>
-            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 월 볼륨</p><p class="text-3xl font-black" id="stat-volume">-</p></div>
-            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">캡틴 수</p><p class="text-3xl font-black" id="stat-captains">-</p></div>
+    <!-- 관리자 화면 -->
+    <div id="admin-screen" class="hidden p-6">
+        <div class="max-w-6xl mx-auto space-y-8">
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-1">CrownMakers Collective</p>
+                    <h1 class="text-2xl font-black">Admin Dashboard</h1>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="exportExcel()" class="btn btn-primary">엑셀 다운로드</button>
+                    <button onclick="loadData()" class="btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);">새로고침</button>
+                    <button onclick="logout()" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;">로그아웃</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 등록자</p><p class="text-3xl font-black" id="stat-total">-</p></div>
+                <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 얼라이언스</p><p class="text-3xl font-black" id="stat-teams">-</p></div>
+                <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 월 볼륨</p><p class="text-3xl font-black" id="stat-volume">-</p></div>
+                <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">캡틴 수</p><p class="text-3xl font-black" id="stat-captains">-</p></div>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                    <h2 class="font-black text-lg">등록자 목록</h2>
+                    <span id="row-count" class="text-[11px] text-white/30 font-bold uppercase tracking-widest"></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>이름</th>
+                                <th>클리닉</th>
+                                <th>이메일</th>
+                                <th>얼라이언스</th>
+                                <th>역할</th>
+                                <th>월 볼륨 ($)</th>
+                                <th>등록일시</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="8" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="p-6 border-b border-white/5">
+                    <h2 class="font-black text-lg">얼라이언스 현황</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>얼라이언스명</th>
+                                <th>캡틴</th>
+                                <th>멤버 수</th>
+                                <th>합산 볼륨 ($)</th>
+                                <th>현재 티어</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-body">
+                            <tr><td colspan="5" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-
-        <!-- Table -->
-        <div class="card overflow-hidden">
-            <div class="p-6 border-b border-white/5 flex items-center justify-between">
-                <h2 class="font-black text-lg">등록자 목록</h2>
-                <span id="row-count" class="text-[11px] text-white/30 font-bold uppercase tracking-widest"></span>
-            </div>
-            <div class="overflow-x-auto">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>이름</th>
-                            <th>클리닉</th>
-                            <th>이메일</th>
-                            <th>얼라이언스</th>
-                            <th>역할</th>
-                            <th>월 볼륨 ($)</th>
-                            <th>등록일시</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <tr><td colspan="8" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Team Summary -->
-        <div class="card overflow-hidden">
-            <div class="p-6 border-b border-white/5">
-                <h2 class="font-black text-lg">얼라이언스 현황</h2>
-            </div>
-            <div class="overflow-x-auto">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>얼라이언스명</th>
-                            <th>캡틴</th>
-                            <th>멤버 수</th>
-                            <th>합산 볼륨 ($)</th>
-                            <th>현재 티어</th>
-                        </tr>
-                    </thead>
-                    <tbody id="team-body">
-                        <tr><td colspan="5" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const ADMIN_PASSWORD = 'Crownmakers@9910620';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCz5_Bf_D1Fz_qMTxRWHRaRiENpvQ65RmM",
@@ -126,8 +141,40 @@
         let allRegs = [];
         let allTeams = [];
 
-        await signInAnonymously(auth);
-        await loadData();
+        window.checkPassword = function() {
+            const input = document.getElementById('pw-input').value;
+            const error = document.getElementById('pw-error');
+            if (input === ADMIN_PASSWORD) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-screen').classList.remove('hidden');
+                sessionStorage.setItem('cm-admin', '1');
+                initAdmin();
+            } else {
+                error.classList.remove('hidden');
+                const box = document.getElementById('pw-input');
+                box.classList.add('shake');
+                box.value = '';
+                setTimeout(() => box.classList.remove('shake'), 400);
+            }
+        };
+
+        window.logout = function() {
+            sessionStorage.removeItem('cm-admin');
+            document.getElementById('admin-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('pw-input').value = '';
+        };
+
+        async function initAdmin() {
+            await signInAnonymously(auth);
+            await loadData();
+        }
+
+        if (sessionStorage.getItem('cm-admin') === '1') {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+            initAdmin();
+        }
 
         window.loadData = async function() {
             const teamsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'teams'));
@@ -143,7 +190,7 @@
             renderStats();
             renderTable();
             renderTeams();
-        }
+        };
 
         function renderStats() {
             document.getElementById('stat-total').textContent = allRegs.length;
@@ -189,8 +236,7 @@
             tbody.innerHTML = sorted.map(t => {
                 const m = t.memberCount || 0;
                 const v = t.totalVolume || 0;
-                let tier = 'Pending';
-                let tierColor = 'color:#666';
+                let tier = 'Pending'; let tierColor = 'color:#666';
                 if (m >= 7 && v >= 7000) { tier = 'Gold 10%'; tierColor = 'color:#00d1ff'; }
                 else if (m >= 5 && v >= 5000) { tier = 'Silver 7%'; tierColor = 'color:#fff'; }
                 else if (m >= 3 && v >= 3000) { tier = 'Bronze 5%'; tierColor = 'color:rgba(255,255,255,0.6)'; }
@@ -208,7 +254,6 @@
 
         window.exportExcel = function() {
             if (allRegs.length === 0) { alert('다운로드할 데이터가 없습니다.'); return; }
-
             const data = allRegs.map((r, i) => {
                 const team = allTeams.find(t => t.id === r.teamId);
                 const date = r.timestamp ? new Date(r.timestamp.seconds * 1000).toLocaleString('ko-KR') : '-';
@@ -223,14 +268,10 @@
                     '등록일시': date
                 };
             });
-
             const ws = XLSX.utils.json_to_sheet(data);
-            ws['!cols'] = [
-                {wch:6},{wch:16},{wch:24},{wch:28},{wch:24},{wch:10},{wch:14},{wch:22}
-            ];
+            ws['!cols'] = [{wch:6},{wch:16},{wch:24},{wch:28},{wch:24},{wch:10},{wch:14},{wch:22}];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, '등록자 목록');
-
             const teamData = allTeams.map(t => ({
                 '얼라이언스명': t.name,
                 '캡틴': t.captainName,
@@ -239,10 +280,9 @@
             }));
             const ws2 = XLSX.utils.json_to_sheet(teamData);
             XLSX.utils.book_append_sheet(wb, ws2, '얼라이언스 현황');
-
             const today = new Date().toISOString().slice(0,10);
             XLSX.writeFile(wb, `CrownMakers_등록자목록_${today}.xlsx`);
-        }
+        };
     </script>
 </body>
 </html>
