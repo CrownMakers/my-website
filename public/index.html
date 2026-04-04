@@ -418,7 +418,7 @@
                 <i class="fa-solid fa-circle-check text-4xl"></i>
             </div>
             <div class="space-y-2 text-center">
-                <h2 class="text-3xl font-black font-serif-italic italic text-center">Integrated</h2>
+                <h2 class="text-3xl font-black font-serif-italic italic text-center" id="modal-title">Alliance Confirmed</h2>
                 <p id="success-msg" class="text-slate-400 text-sm font-medium leading-relaxed text-center"></p>
             </div>
             <button onclick="closeModal()" class="w-full brand-gradient text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center">Return Board</button>
@@ -546,35 +546,45 @@ const appId = 'crown-makers-prod-v1';
         }
 
         window.handleRegistration = async () => {
-            if (!user) return;
             const btn = document.getElementById('submit-btn');
             const role = document.querySelector('input[name="role"]:checked').value;
-            const name = document.getElementById('input-name').value;
-            const email = document.getElementById('input-email').value;
-            const clinic = document.getElementById('input-clinic').value;
+            const name = document.getElementById('input-name').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+            const clinic = document.getElementById('input-clinic').value.trim();
             const volumeRaw = document.getElementById('input-volume').value;
             const volume = parseInt(volumeRaw.replace(/,/g, '')) || 0;
 
-            if (!name || !email || !clinic || volume <= 0) { showMsg("Credential Data Incomplete."); return; }
+            if (!name) { showMsg("이름을 입력해주세요."); return; }
+            if (!email) { showMsg("이메일을 입력해주세요."); return; }
+            if (!clinic) { showMsg("클리닉 이름을 입력해주세요."); return; }
+            if (volume <= 0) { showMsg("월 볼륨을 입력해주세요."); return; }
+
             btn.disabled = true;
             btn.innerHTML = '<div class="flex items-center justify-center space-x-3"><div class="loader"></div><span>Syncing...</span></div>';
 
             try {
+                if (!user) {
+                    await signInAnonymously(auth);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
                 const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
                 const regRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
 
                 if (role === 'captain') {
-                    const tName = document.getElementById('input-team-name').value;
-                    if (!tName) { showMsg("Alliance Name Required."); btn.disabled = false; return; }
+                    const tName = document.getElementById('input-team-name').value.trim();
+                    if (!tName) { showMsg("얼라이언스 이름을 입력해주세요."); btn.disabled = false; btn.innerText = "Secure My Spot"; return; }
                     const docRef = await addDoc(teamsRef, { name: tName, captainName: name, memberCount: 1, totalVolume: volume, createdAt: serverTimestamp() });
                     await addDoc(regRef, { teamId: docRef.id, name, email, clinic, volume, isCaptain: true, timestamp: serverTimestamp() });
-                    document.getElementById('success-msg').innerText = `Dr. ${name}, alliance secured. Your 3% Captain Bonus is activated.`;
+                    document.getElementById('modal-title').innerText = 'Alliance Confirmed';
+                    document.getElementById('success-msg').innerText = `Dr. ${name}, your alliance has been created. Your 3% Captain Bonus is activated.`;
                 } else {
-                    if (!selectedTeamId) { showMsg("Please select an Alliance to join."); btn.disabled = false; return; }
+                    if (!selectedTeamId) { showMsg("참가할 얼라이언스를 선택해주세요."); btn.disabled = false; btn.innerText = "Secure My Spot"; return; }
                     const tRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', selectedTeamId);
                     await updateDoc(tRef, { memberCount: increment(1), totalVolume: increment(volume) });
                     await addDoc(regRef, { teamId: selectedTeamId, name, email, clinic, volume, isCaptain: false, timestamp: serverTimestamp() });
-                    document.getElementById('success-msg').innerText = `Dr. ${name}, clinic profile integrated into the collective.`;
+                    document.getElementById('modal-title').innerText = 'Welcome to the Alliance';
+                    document.getElementById('success-msg').innerText = `Dr. ${name}, you've successfully joined the collective.`;
                 }
 
                 document.getElementById('modal-success').classList.remove('hidden');
@@ -585,9 +595,12 @@ const appId = 'crown-makers-prod-v1';
                 document.getElementById('input-volume').value = '';
                 selectedTeamId = null;
                 document.getElementById('team-search').value = '';
-            } catch (err) { console.error(err); showMsg("Protocol Error. Check Connection."); } finally { 
-                btn.disabled = false; 
-                btn.innerText = "Secure My Spot"; 
+            } catch (err) {
+                console.error("Registration error:", err);
+                showMsg("오류가 발생했습니다: " + (err.message || "다시 시도해주세요."));
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Secure My Spot";
             }
         };
 
