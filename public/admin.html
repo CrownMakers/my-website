@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrownMakers Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050a14; color: #fff; }
+        .card { background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(0,209,255,0.1); color: #00d1ff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 16px; text-align: left; }
+        td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .badge-captain { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .badge-member { background: rgba(0,209,255,0.1); color: #00d1ff; border: 1px solid rgba(0,209,255,0.2); }
+        .btn { padding: 12px 24px; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-primary { background: linear-gradient(135deg, #00d1ff, #6366f1); color: white; }
+        .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+        .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .btn-danger:hover { background: rgba(239,68,68,0.25); }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; }
+    </style>
+</head>
+<body class="min-h-screen p-6">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-1">CrownMakers Collective</p>
+                <h1 class="text-2xl font-black">Admin Dashboard</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="exportExcel()" class="btn btn-primary">
+                    엑셀 다운로드
+                </button>
+                <button onclick="loadData()" class="btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);">
+                    새로고침
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats">
+            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 등록자</p><p class="text-3xl font-black" id="stat-total">-</p></div>
+            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 얼라이언스</p><p class="text-3xl font-black" id="stat-teams">-</p></div>
+            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">총 월 볼륨</p><p class="text-3xl font-black" id="stat-volume">-</p></div>
+            <div class="stat-card"><p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">캡틴 수</p><p class="text-3xl font-black" id="stat-captains">-</p></div>
+        </div>
+
+        <!-- Table -->
+        <div class="card overflow-hidden">
+            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                <h2 class="font-black text-lg">등록자 목록</h2>
+                <span id="row-count" class="text-[11px] text-white/30 font-bold uppercase tracking-widest"></span>
+            </div>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>이름</th>
+                            <th>클리닉</th>
+                            <th>이메일</th>
+                            <th>얼라이언스</th>
+                            <th>역할</th>
+                            <th>월 볼륨 ($)</th>
+                            <th>등록일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr><td colspan="8" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Team Summary -->
+        <div class="card overflow-hidden">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="font-black text-lg">얼라이언스 현황</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>얼라이언스명</th>
+                            <th>캡틴</th>
+                            <th>멤버 수</th>
+                            <th>합산 볼륨 ($)</th>
+                            <th>현재 티어</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team-body">
+                        <tr><td colspan="5" class="text-center text-white/30 py-12">데이터 로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCz5_Bf_D1Fz_qMTxRWHRaRiENpvQ65RmM",
+            authDomain: "crownmakers-collective-apr2026.firebaseapp.com",
+            projectId: "crownmakers-collective-apr2026",
+            storageBucket: "crownmakers-collective-apr2026.firebasestorage.app",
+            messagingSenderId: "190674782151",
+            appId: "1:190674782151:web:8ad76c9a5c6cad0dbfbbe2"
+        };
+        const appId = 'crown-makers-prod-v1';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let allRegs = [];
+        let allTeams = [];
+
+        await signInAnonymously(auth);
+        await loadData();
+
+        window.loadData = async function() {
+            const teamsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'teams'));
+            const regsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'));
+
+            allTeams = [];
+            teamsSnap.forEach(d => allTeams.push({ id: d.id, ...d.data() }));
+
+            allRegs = [];
+            regsSnap.forEach(d => allRegs.push({ id: d.id, ...d.data() }));
+            allRegs.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
+
+            renderStats();
+            renderTable();
+            renderTeams();
+        }
+
+        function renderStats() {
+            document.getElementById('stat-total').textContent = allRegs.length;
+            document.getElementById('stat-teams').textContent = allTeams.length;
+            const totalVol = allRegs.reduce((s, r) => s + (r.volume || 0), 0);
+            document.getElementById('stat-volume').textContent = '$' + totalVol.toLocaleString();
+            document.getElementById('stat-captains').textContent = allRegs.filter(r => r.isCaptain).length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            document.getElementById('row-count').textContent = `총 ${allRegs.length}명`;
+            if (allRegs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-white/30 py-12">등록된 데이터가 없습니다</td></tr>';
+                return;
+            }
+            tbody.innerHTML = allRegs.map((r, i) => {
+                const team = allTeams.find(t => t.id === r.teamId);
+                const teamName = team ? team.name : '-';
+                const date = r.timestamp ? new Date(r.timestamp.seconds * 1000).toLocaleString('ko-KR') : '-';
+                return `
+                    <tr>
+                        <td class="text-white/30 font-bold">${i + 1}</td>
+                        <td class="font-bold">${r.name || '-'}</td>
+                        <td>${r.clinic || '-'}</td>
+                        <td class="text-sky-400">${r.email || '-'}</td>
+                        <td>${teamName}</td>
+                        <td><span class="badge ${r.isCaptain ? 'badge-captain' : 'badge-member'}">${r.isCaptain ? '👑 Captain' : '🤝 Member'}</span></td>
+                        <td class="font-bold text-sky-400">$${(r.volume || 0).toLocaleString()}</td>
+                        <td class="text-white/40 text-xs">${date}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderTeams() {
+            const tbody = document.getElementById('team-body');
+            const sorted = [...allTeams].sort((a, b) => (b.totalVolume || 0) - (a.totalVolume || 0));
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-white/30 py-12">등록된 얼라이언스가 없습니다</td></tr>';
+                return;
+            }
+            tbody.innerHTML = sorted.map(t => {
+                const m = t.memberCount || 0;
+                const v = t.totalVolume || 0;
+                let tier = 'Pending';
+                let tierColor = 'color:#666';
+                if (m >= 7 && v >= 7000) { tier = 'Gold 10%'; tierColor = 'color:#00d1ff'; }
+                else if (m >= 5 && v >= 5000) { tier = 'Silver 7%'; tierColor = 'color:#fff'; }
+                else if (m >= 3 && v >= 3000) { tier = 'Bronze 5%'; tierColor = 'color:rgba(255,255,255,0.6)'; }
+                return `
+                    <tr>
+                        <td class="font-bold">${t.name}</td>
+                        <td>${t.captainName}</td>
+                        <td class="font-bold text-sky-400">${m}</td>
+                        <td class="font-bold">$${v.toLocaleString()}</td>
+                        <td><span style="${tierColor}" class="font-black text-sm">${tier}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.exportExcel = function() {
+            if (allRegs.length === 0) { alert('다운로드할 데이터가 없습니다.'); return; }
+
+            const data = allRegs.map((r, i) => {
+                const team = allTeams.find(t => t.id === r.teamId);
+                const date = r.timestamp ? new Date(r.timestamp.seconds * 1000).toLocaleString('ko-KR') : '-';
+                return {
+                    '번호': i + 1,
+                    '이름': r.name || '',
+                    '클리닉': r.clinic || '',
+                    '이메일': r.email || '',
+                    '얼라이언스': team ? team.name : '',
+                    '역할': r.isCaptain ? 'Captain' : 'Member',
+                    '월 볼륨 ($)': r.volume || 0,
+                    '등록일시': date
+                };
+            });
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            ws['!cols'] = [
+                {wch:6},{wch:16},{wch:24},{wch:28},{wch:24},{wch:10},{wch:14},{wch:22}
+            ];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '등록자 목록');
+
+            const teamData = allTeams.map(t => ({
+                '얼라이언스명': t.name,
+                '캡틴': t.captainName,
+                '멤버 수': t.memberCount || 0,
+                '합산 볼륨 ($)': t.totalVolume || 0
+            }));
+            const ws2 = XLSX.utils.json_to_sheet(teamData);
+            XLSX.utils.book_append_sheet(wb, ws2, '얼라이언스 현황');
+
+            const today = new Date().toISOString().slice(0,10);
+            XLSX.writeFile(wb, `CrownMakers_등록자목록_${today}.xlsx`);
+        }
+    </script>
+</body>
+</html>
